@@ -1,8 +1,6 @@
 package com.mathroda.snackie
 
 import android.os.Bundle
-import android.view.Surface
-import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.mathroda.snackie.ui.theme.SnackieTheme
-import org.w3c.dom.Text
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,24 +26,33 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val state = rememberSnackieState()
+                    val success = rememberSnackieState()
+                    val error = rememberSnackieState()
+                    val custom = rememberSnackieState()
+
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Button(onClick = { state.addSuccess("This is a Success Message!") }) {
+                        Button(onClick = { success.addMessage("This is a Success Message!") }) {
                             Text(text = "Success")
                         }
 
-                        Button(onClick = { state.addError(Exception("This is a Error Message!")) }) {
+                        Button(onClick = { error.addMessage("This is a Error Message!") }) {
                             Text(text = "Error")
                         }
+
+                        Button(onClick = { custom.addMessage("This is a Custom Message!") }) {
+                            Text(text = "Custom")
+                        }
                     }
-                    SnackieContent(
-                        state = state,
-                        position = SnackiePosition.Top
-                        )
+
+                    SnackieSuccess(state = success)
+
+                    SnackieError(state = error)
+
+                    SnackieCustom(state = custom, position = SnackiePosition.Float)
                 }
             }
         }

@@ -4,16 +4,19 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -27,17 +30,14 @@ fun rememberSnackieState(): SnackieState {
 }
 
 @Composable
-fun SnackieContent(
+fun SnackieCustom(
     modifier: Modifier = Modifier,
     state: SnackieState,
-    position: SnackiePosition = SnackiePosition.Top,
+    position: SnackiePosition = SnackiePosition.Bottom,
     duration: Long = 3000L,
-    successIcon: ImageVector = Icons.Default.Check,
-    errorIcon: ImageVector = Icons.Default.Warning,
-    successContainerColor: Color = BrightGreen,
-    successContentColor: Color = TextWhite,
-    errorContainerColor: Color = BrightRed,
-    errorContentColor: Color = TextWhite,
+    icon: ImageVector = Icons.Default.Star,
+    containerColor: Color = Color.Gray,
+    contentColor: Color = TextWhite,
     enterAnimation: EnterTransition = expandVertically(
         animationSpec = tween(delayMillis = 300),
         expandFrom = when(position) {
@@ -65,16 +65,93 @@ fun SnackieContent(
             state,
             duration,
             position,
-            successContainerColor,
-            errorContainerColor,
-            successContentColor,
-            errorContentColor,
+            containerColor,
+            contentColor,
             verticalPadding,
             horizontalPadding,
-            successIcon,
-            errorIcon,
+            icon,
             enterAnimation,
             exitAnimation
+        )
+    }
+}
+
+@Composable
+fun SnackieError(
+    modifier: Modifier = Modifier,
+    state: SnackieState,
+    position: SnackiePosition = SnackiePosition.Bottom,
+    duration: Long = 3000L,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        SnackieComponent(
+            state = state,
+            duration = duration,
+            position = position,
+            containerColor = BrightRed,
+            contentColor = TextWhite,
+            verticalPadding = 12.dp,
+            horizontalPadding = 12.dp,
+            icon = Icons.Default.Warning,
+            enterAnimation = expandVertically(
+                animationSpec = tween(delayMillis = 300),
+                expandFrom = when(position) {
+                    is SnackiePosition.Top -> Alignment.Top
+                    is SnackiePosition.Bottom -> Alignment.Bottom
+                    is SnackiePosition.Float -> Alignment.CenterVertically
+                }
+            ),
+            exitAnimation = shrinkVertically(
+                animationSpec = tween(delayMillis = 300),
+                shrinkTowards =  when(position) {
+                    is SnackiePosition.Top -> Alignment.Top
+                    is SnackiePosition.Bottom -> Alignment.Bottom
+                    is SnackiePosition.Float -> Alignment.CenterVertically
+                }
+            )
+        )
+    }
+}
+
+@Composable
+fun SnackieSuccess(
+    modifier: Modifier = Modifier,
+    state: SnackieState,
+    position: SnackiePosition = SnackiePosition.Top,
+    duration: Long = 3000L,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        SnackieComponent(
+            state = state,
+            duration = duration,
+            position = position,
+            containerColor = BrightGreen,
+            contentColor = TextWhite,
+            verticalPadding = 12.dp,
+            horizontalPadding = 12.dp,
+            icon = Icons.Default.Check,
+            enterAnimation = expandVertically(
+                animationSpec = tween(delayMillis = 300),
+                expandFrom = when(position) {
+                    is SnackiePosition.Top -> Alignment.Top
+                    is SnackiePosition.Bottom -> Alignment.Bottom
+                    is SnackiePosition.Float -> Alignment.CenterVertically
+                }
+            ),
+            exitAnimation = shrinkVertically(
+                animationSpec = tween(delayMillis = 300),
+                shrinkTowards =  when(position) {
+                    is SnackiePosition.Top -> Alignment.Top
+                    is SnackiePosition.Bottom -> Alignment.Bottom
+                    is SnackiePosition.Float -> Alignment.CenterVertically
+                }
+            )
         )
     }
 }
@@ -85,20 +162,16 @@ internal fun SnackieComponent(
     state: SnackieState,
     duration: Long,
     position: SnackiePosition,
-    successContainerColor: Color,
-    errorContainerColor: Color,
-    successContentColor: Color,
-    errorContentColor: Color,
+    containerColor: Color,
+    contentColor: Color,
     verticalPadding: Dp,
     horizontalPadding: Dp,
-    successIcon: ImageVector,
-    errorIcon: ImageVector,
+    icon: ImageVector,
     enterAnimation: EnterTransition,
     exitAnimation: ExitTransition,
 ) {
     var showSnackie by remember { mutableStateOf(false) }
-    val error by rememberUpdatedState(newValue = state.error.value?.message)
-    val message by rememberUpdatedState(newValue = state.success.value)
+    val message by rememberUpdatedState(newValue = state.message.value)
 
     DisposableEffect(
         key1 = state.updateState
@@ -115,29 +188,43 @@ internal fun SnackieComponent(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                bottom = when(position) {
+                    is SnackiePosition.Top -> 0.dp
+                    is SnackiePosition.Bottom -> 0.dp
+                    is SnackiePosition.Float -> 24.dp
+                }
+            ),
         verticalArrangement = when(position) {
             is SnackiePosition.Top -> Arrangement.Top
             is SnackiePosition.Bottom -> Arrangement.Bottom
-            is SnackiePosition.Float -> Arrangement.Center
-        }
+            is SnackiePosition.Float -> Arrangement.Bottom
+        },
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AnimatedVisibility(
-            visible = state.isError() && showSnackie || state.isSuccess() && showSnackie,
-            enter = enterAnimation,
-            exit = exitAnimation
+            visible = state.isNotEmpty() && showSnackie,
+            enter = when(position) {
+                is SnackiePosition.Top -> enterAnimation
+                is SnackiePosition.Bottom -> enterAnimation
+                is SnackiePosition.Float -> fadeIn()
+            },
+            exit = when(position) {
+                is SnackiePosition.Top -> exitAnimation
+                is SnackiePosition.Bottom -> exitAnimation
+                is SnackiePosition.Float -> fadeOut()
+            }
         ) {
             Snackie(
                 message,
-                error,
-                successContainerColor,
-                errorContainerColor,
-                successContentColor,
-                errorContentColor,
+                position,
+                containerColor,
+                contentColor,
                 verticalPadding,
                 horizontalPadding,
-                successIcon,
-                errorIcon
+                icon
             )
         }
     }
@@ -147,27 +234,29 @@ internal fun SnackieComponent(
 @Composable
 internal fun Snackie(
     message: String?,
-    error: String?,
-    successContainerColor: Color,
-    errorContainerColor: Color,
-    successContentColor: Color,
-    errorContentColor: Color,
+    position: SnackiePosition,
+    containerColor: Color,
+    contentColor: Color,
     verticalPadding: Dp,
     horizontalPadding: Dp,
-    successIcon: ImageVector,
-    errorIcon: ImageVector,
+    icon: ImageVector,
 ) {
-
-    val containerColor =  if (error.isNullOrBlank()) successContainerColor else errorContainerColor
-    val contentColor = if (error.isNullOrBlank()) successContentColor else errorContentColor
-    val icon = if (error.isNullOrBlank()) successIcon else errorIcon
-
-
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(
+                fraction = when(position) {
+                    is SnackiePosition.Top -> 1f
+                    is SnackiePosition.Bottom -> 1f
+                    is SnackiePosition.Float -> 0.8f
+                }
+            )
             .background(
-                containerColor
+                color = containerColor,
+                shape = when(position) {
+                    is SnackiePosition.Top -> RectangleShape
+                    is SnackiePosition.Bottom -> RectangleShape
+                    is SnackiePosition.Float -> RoundedCornerShape(8.dp)
+                }
             )
             .padding(vertical = verticalPadding)
             .padding(horizontal = horizontalPadding)
@@ -188,13 +277,12 @@ internal fun Snackie(
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(
-                text = message ?: (error ?: "Unknown"),
+                text = message ?: "Unknown",
                 color = contentColor,
                 style = MaterialTheme.typography.body1,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
-
         }
     }
 }
