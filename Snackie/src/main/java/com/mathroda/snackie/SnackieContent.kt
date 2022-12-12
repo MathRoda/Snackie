@@ -18,9 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.mathroda.snackie.TestTags.SNACKIE
+import com.mathroda.snackie.TestTags.SNACKIE_MESSAGE
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -260,7 +263,8 @@ internal fun Snackie(
             )
             .padding(vertical = verticalPadding)
             .padding(horizontal = horizontalPadding)
-            .animateContentSize(),
+            .animateContentSize()
+            .testTag(SNACKIE),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -277,6 +281,7 @@ internal fun Snackie(
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(
+                modifier = Modifier.testTag(SNACKIE_MESSAGE),
                 text = message ?: "Unknown",
                 color = contentColor,
                 style = MaterialTheme.typography.body1,
@@ -287,6 +292,6 @@ internal fun Snackie(
     }
 }
 
-val BrightGreen = Color(0xFF50DE91)
-val BrightRed = Color(0xFFFE4024)
+val BrightGreen = Color(0xFF19B661)
+val BrightRed = Color(0xFFE8503A)
 val TextWhite = Color(0xFFEEEEEE)
