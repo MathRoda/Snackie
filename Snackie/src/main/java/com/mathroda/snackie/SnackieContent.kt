@@ -39,7 +39,7 @@ fun SnackieCustom(
     position: SnackiePosition = SnackiePosition.Bottom,
     duration: Long = 3000L,
     icon: ImageVector = Icons.Default.Star,
-    containerColor: Color = Custom,
+    containerColor: Color = Color.Gray,
     contentColor: Color = TextWhite,
     enterAnimation: EnterTransition = expandVertically(
         animationSpec = tween(delayMillis = 300),
@@ -94,7 +94,7 @@ fun SnackieError(
             state = state,
             duration = duration,
             position = position,
-            containerColor = Error,
+            containerColor = BrightRed,
             contentColor = TextWhite,
             verticalPadding = 12.dp,
             horizontalPadding = 12.dp,
@@ -134,7 +134,7 @@ fun SnackieSuccess(
             state = state,
             duration = duration,
             position = position,
-            containerColor = Success,
+            containerColor = BrightGreen,
             contentColor = TextWhite,
             verticalPadding = 12.dp,
             horizontalPadding = 12.dp,
@@ -286,13 +286,12 @@ internal fun Snackie(
                 color = contentColor,
                 style = MaterialTheme.typography.body1,
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 2
+                maxLines = 1
             )
         }
     }
 }
 
+val BrightGreen = Color(0xFF19B661)
+val BrightRed = Color(0xFFE8503A)
 val TextWhite = Color(0xFFEEEEEE)
-val Success= Color(0xFF66BC6A)
-val Custom =Color(0xFFFFA921)
-val Error = Color(0xFFEF524F)
