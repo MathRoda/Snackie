@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                         position = SnackiePosition.Float,
                         duration = 3000L,
                         icon = Icons.Default.Star,
-                        containerColor = Color.Gray,
+                        //containerColor = Color.Gray,
                         contentColor = Color.White,
                         enterAnimation = fadeIn(),
                         exitAnimation = fadeOut(),
